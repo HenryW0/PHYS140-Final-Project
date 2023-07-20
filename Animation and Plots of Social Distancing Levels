@@ -1,3 +1,5 @@
+#Author: Henry Wahhab
+
 rd.seed(8024)
 
 Normal = Initialization(dt, Nt, People, Normal, 0)
