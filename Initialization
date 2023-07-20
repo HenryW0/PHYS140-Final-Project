@@ -251,13 +251,3 @@ def Initialization(time_interval, total_time, particle_number, Dots, Stationary)
                 success += 1
                 
     return Dots
-
-rd.seed(8024)
-
-Normal = Initialization(dt, Nt, People, Normal, 0)
-
-NoSocialDistance = Simulation(dt, Nt, People, Normal)
-
-Susceptible_Locations = NoSocialDistance[0]
-Infected_Locations = NoSocialDistance[1]
-Recovered_Locations = NoSocialDistance[2]
