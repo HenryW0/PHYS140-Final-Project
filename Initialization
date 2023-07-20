@@ -1,0 +1,263 @@
+#Author: Henry Wahhab
+#Notes: Had to split up project into multiple files due to animations taking large amount of space
+
+import numpy as np
+import pylab as plt
+import random as rd
+import matplotlib.animation as animation
+animation.rcParams['animation.embed_limit'] = 2**128 #You can comment this out if needed
+#Animations sometimes are quick and sometimes take a very long time, not sure why
+
+class Particle:
+    # default constructor
+    # basic settings when creating a new particle object
+    def __init__(self, x, y, mass, vx=0, vy=0, covid=0, radius = 0.01):
+        # self refers to attributes within this class
+        # such as like the color of a car
+        
+        #covid = 0 : susceptible, =1 infected, =2 recovered
+
+        # initial conditions
+        
+        self.x = x
+        self.y = y
+        self.vx = vx
+        self.vy = vy
+        
+        self.covid = covid
+        
+        self.mass = mass
+        self.radius = radius
+
+        
+    #Define setters and getters for each
+    
+    def getX(self):
+        return self.x
+    
+    def setX(self, new_x):
+        self.x = new_x
+        
+    def getVX(self):
+        return self.vx
+    
+    def setVX(self, new_vx):
+        self.vx = new_vx
+    
+    def getY(self):
+        return self.y
+        
+    def setY(self, new_y):
+        self.y = new_y    
+    
+    def getVY(self):
+        return self.vy
+    
+    def setVY(self, new_vy):
+        self.vy = new_vy
+        
+    def collision_detect(self, other):
+        #Checks to see if a collision occurs
+
+        hit = (self.x - other.x)**2 + (self.y - other.y)**2 < (self.radius + other.radius)**2
+        
+        if hit == True:
+            
+            if self.covid == 1 and other.covid == 0:
+                other.covid = 1
+            elif other.covid == 1 and self.covid == 0:
+                self.covid == 1
+                
+        return hit
+    
+    
+    def elastic_velocity(self, other):
+
+        #Gets new velocities of each particle using perfectly elastic collision conservation of momentum and KE 
+
+        m1 = self.mass
+        m2 = other.mass
+        
+        M = m1 + m2 #Total mass
+        
+        #Convert to vx and vy and x/y
+        x1, y1 = self.x, self.y
+        r1 = np.array([x1, y1])
+        
+        x2, y2 = other.x, other.y
+        r2 = np.array([x2, y2])
+
+        d = np.linalg.norm(r1 - r2)**2 #Gets the magnitude squared of the distance between the centers
+        
+        vx1, vy1 = self.vx, self.vy
+        v1 = np.array([vx1, vy1])
+        
+        vx2, vy2 = other.vx, other.vy
+        v2 = np.array([vx2, vy2])
+        
+        #Equation for elastic 2 Dimensional collision from https://en.wikipedia.org/wiki/Elastic_collision
+        
+        #I decided to use the vector method since the other equations rely on contact angle and have many sines/cosines
+        
+        u1 = v1 - 2*m2 / M * np.dot(v1-v2, r1-r2) / d * (r1 - r2)
+        u2 = v2 - 2*m1 / M * np.dot(v2-v1, r2-r1) / d * (r2 - r1)
+        
+        self.vx = u1[0]
+        self.vy = u1[1]
+        
+        other.vx = u2[0]
+        other.vy = u2[1]
+    
+    
+    def movement(self, dt):
+        
+        self.x += self.vx * dt
+        self.y += self.vy * dt
+
+        #Particles collide with walls, flip sign of velocity 
+        
+        L = 1 #Bounds for the wall
+        
+        if self.x - self.radius < 0:
+            self.x = self.radius
+            self.vx = -self.vx
+            
+        if self.x + self.radius > L:
+            self.x = L - self.radius
+            self.vx = -self.vx
+            
+        if self.y - self.radius < 0:
+            self.y = self.radius
+            self.vy = -self.vy
+            
+        if self.y + self.radius > L:
+            self.y = L - self.radius
+            self.vy = -self.vy
+
+dt = 0.001 #time interval
+Nt = 2000 #Number of time intervals
+FrameNt = 1000 #This is used for animations so it does not store too much data
+People = 100 #Number of particles
+Heavy = 9999999.0 #Used for stationary particles
+Normal = list() #Filled up with particles
+
+def Simulation(time_interval, total_time, particle_number, Dots):
+
+    dt = time_interval
+    Nt = total_time
+    Num_P = particle_number #Number of particles
+
+    Position = np.zeros([Nt, Num_P * 2])
+    
+    #Not efficient time and storage wise, should be a way to animate without excess arrays
+    Infected_Position = np.zeros([Nt, Num_P * 2]) - 5
+    Recovered_Position = np.zeros([Nt, Num_P * 2]) - 4
+    Susceptible_Position = np.zeros([Nt, Num_P * 2]) - 3
+    
+    
+    Infected = np.zeros(Nt)
+    Recovered = np.zeros(Nt)
+    Susceptible = np.zeros(Nt)
+    time_to_recover = np.zeros(Num_P)
+
+    Past_Collisions = np.zeros([Nt, Num_P]) - 1 #subtract 1 so it does not get confused with particle index 0
+    
+    for t in range(Nt): #Time Loop
+        for k in range(Num_P):
+
+            if Dots[k].covid == 1:
+                Infected[t] += 1
+                time_to_recover[k] += 1
+                if time_to_recover[k] == 250: #250 dt is an arbitrary number for recovery time
+                    Dots[k].covid = 2    
+                    Infected[t] -= 1
+                    Recovered[t] += 1
+
+            elif Dots[k].covid == 2:
+                Recovered[t] += 1
+
+            else:
+                Susceptible[t] += 1
+
+
+            Position[t, k] = Dots[k].getX()
+            Position[t, (Num_P + k)] = Dots[k].getY()
+            
+            if Dots[k].covid == 0:
+                Susceptible_Position[t, k] = Position[t, k]
+                Susceptible_Position[t, (Num_P + k)] = Position[t, (Num_P + k)]
+                
+            elif Dots[k].covid == 1:
+                Infected_Position[t, k] = Position[t, k]
+                Infected_Position[t, (Num_P + k)] = Position[t, (Num_P + k)]
+                
+            else:
+                Recovered_Position[t, k] = Position[t, k]
+                Recovered_Position[t, (Num_P + k)] = Position[t, (Num_P + k)]
+
+            Dots[k].movement(dt)
+
+        for a in range(Num_P):
+            for b in range(Num_P):
+
+                if Dots[a].collision_detect(Dots[b]) and a < b: #To avoid double counting collisions
+                    Past_Collisions[t, a] = b
+                    Past_Collisions[t, b] = a
+                    if Past_Collisions[t-1, a] != b and Past_Collisions[t-1, b] != a: 
+                        #to avoid particles getting stuck together
+                        Dots[a].elastic_velocity(Dots[b])
+    
+    return Susceptible_Position, Infected_Position, Recovered_Position ,Infected, Recovered, Susceptible
+
+                    
+                    
+def Initialization(time_interval, total_time, particle_number, Dots, Stationary): #stationary percentage between 0 and 100
+
+    dt = time_interval
+    Nt = total_time
+    Num_P = particle_number     
+    
+    success = 0
+
+    while success < Num_P:
+
+        x = rd.choices([0,1], weights = [99, 1])[0] #Determines if Infected or Susceptible at the start, weighted chance
+        
+        if Stationary == 0:
+            Test = Particle(rd.random(), rd.random(), 1, rd.randint(-2,2), rd.randint(-2,2), x)
+        else:
+            x2 = rd.choices([1, Heavy], weights = [100 - Stationary, Stationary])[0] 
+            if x2 == 1:
+                Test = Particle(rd.random(), rd.random(), x2, rd.randint(-2,2), rd.randint(-2,2), x)
+            else:
+                Test = Particle(rd.random(), rd.random(), x2, 0, 0, x)
+
+        if success == 0:
+            #print(f'Success Number: {success}')
+            Dots.append(Test)
+            #print(Dots[success].covid)
+            success += 1
+
+        else:
+            for z in range(success):
+                if Test.collision_detect(Dots[z]):
+                    #print('Overlap')
+                    break
+
+            else:
+                #print(f'Success Number: {success}')
+                Dots.append(Test)
+                #print(Dots[success].covid)
+                success += 1
+                
+    return Dots
+
+rd.seed(8024)
+
+Normal = Initialization(dt, Nt, People, Normal, 0)
+
+NoSocialDistance = Simulation(dt, Nt, People, Normal)
+
+Susceptible_Locations = NoSocialDistance[0]
+Infected_Locations = NoSocialDistance[1]
+Recovered_Locations = NoSocialDistance[2]
