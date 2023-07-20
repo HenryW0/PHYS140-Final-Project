@@ -1,0 +1,206 @@
+rd.seed(8024)
+
+Normal = Initialization(dt, Nt, People, Normal, 0)
+
+NoSocialDistance = Simulation(dt, Nt, People, Normal)
+
+
+Susceptible_Locations = NoSocialDistance[0]
+Infected_Locations = NoSocialDistance[1]
+Recovered_Locations = NoSocialDistance[2]
+
+fig1 = plt.figure(figsize=(8,8))
+
+plt.title('No Social Distancing')
+plt.xlim(0,1)
+plt.ylim(0,1)
+
+anim = []
+for n in range(0, FrameNt):
+    anim.append(plt.plot(Susceptible_Locations[n, :People], Susceptible_Locations[n, People:], 'ob',
+                         Infected_Locations[n, :People], Infected_Locations[n, People:], 'or',
+                         Recovered_Locations[n, :People], Recovered_Locations[n, People:], 'og', markersize = 8,
+                         label='{n}'.format(n=n)))
+im = animation.ArtistAnimation(fig1, anim, interval=10, repeat_delay=100,blit=True)
+
+
+#I used the second line since the animation was not working with the first one, might have to switch it to run for you
+
+#rcParams['animation.html'] = 'html5'
+# For some, the following line works instead:
+plt.rcParams['animation.html'] = 'jshtml'
+
+im
+
+fig2 = plt.figure(figsize=(8,8))
+
+Infected = NoSocialDistance[3]
+Recovered = NoSocialDistance[4]
+Susceptible = NoSocialDistance[5]
+
+plt.title('No Social Distancing', fontsize= '20')
+plt.xlabel('Number of Time Intervals', fontsize= '20')
+plt.ylabel('Number of Individuals', fontsize= '20')
+plt.xticks(fontsize= '15')
+plt.yticks(fontsize= '15')
+plt.plot(Infected, color = 'red', label = 'Infected Population')
+plt.plot(Recovered, color = 'green', label = 'Recovered Population')
+plt.plot(Susceptible, color = 'blue', label = 'Susceptible Population')
+plt.grid()
+plt.legend(fontsize= '15')
+#plt.savefig('No_SocialDistance', bbox_inches = 'tight')
+
+rd.seed(8024)
+
+Distance = list()
+
+Distance = Initialization(dt, Nt, People, Distance, 25)
+
+SocialDistance = Simulation(dt, Nt, People, Distance)
+
+Susceptible_Locations2 = SocialDistance[0]
+Infected_Locations2 = SocialDistance[1]
+Recovered_Locations2 = SocialDistance[2]
+
+fig1 = plt.figure(figsize=(8,8)) #I know I have fig1 above already but whenever I made this fig3 it stopped animating
+#correctly and I am not sure why
+
+plt.title('25% Social Distancing')
+plt.xlim(0,1)
+plt.ylim(0,1)
+
+anim = []
+for n in range(0, FrameNt):
+    anim.append(plt.plot(Susceptible_Locations2[n, :People], Susceptible_Locations2[n, People:], 'ob',
+                         Infected_Locations2[n, :People], Infected_Locations2[n, People:], 'or',
+                         Recovered_Locations2[n, :People], Recovered_Locations2[n, People:], 'og', markersize = 8,
+                         label='{n}'.format(n=n)))
+im = animation.ArtistAnimation(fig1, anim, interval=10, repeat_delay=100,blit=True)
+
+
+#I used the second line since the animation was not working with the first one, might have to switch it to run for you
+
+#rcParams['animation.html'] = 'html5'
+# For some, the following line works instead:
+plt.rcParams['animation.html'] = 'jshtml'
+
+im
+
+fig2 = plt.figure(figsize=(8,8))
+
+Infected2 = SocialDistance[3]
+Recovered2 = SocialDistance[4]
+Susceptible2 = SocialDistance[5]
+
+plt.title('25% Social Distancing', fontsize= '20')
+plt.xlabel('Number of Time Intervals',fontsize= '20')
+plt.ylabel('Number of Individuals', fontsize= '20')
+plt.xticks(fontsize= '15')
+plt.yticks(fontsize= '15')
+plt.plot(Infected2, color = 'red', label = 'Infected Population')
+plt.plot(Recovered2, color = 'green', label = 'Recovered Population')
+plt.plot(Susceptible2, color = 'blue', label = 'Susceptible Population')
+plt.grid()
+plt.legend(fontsize='15')
+#plt.savefig('25_SocialDistance', bbox_inches = 'tight')
+
+rd.seed(5284)
+
+Distance2 = list()
+
+Distance2 = Initialization(dt, Nt, People, Distance2, 50)
+
+SocialDistance2 = Simulation(dt, Nt, People, Distance2)
+
+Susceptible_Locations3 = SocialDistance2[0]
+Infected_Locations3 = SocialDistance2[1]
+Recovered_Locations3 = SocialDistance2[2]
+
+fig1 = plt.figure(figsize=(8,8)) #I know I have fig1 above already but whenever I made this fig3 it stopped animating
+#correctly and I am not sure why
+
+plt.title('50% Social Distancing')
+plt.xlim(0,1)
+plt.ylim(0,1)
+
+anim = []
+for n in range(0, FrameNt):
+    anim.append(plt.plot(Susceptible_Locations3[n, :People], Susceptible_Locations3[n, People:], 'ob',
+                         Infected_Locations3[n, :People], Infected_Locations3[n, People:], 'or',
+                         Recovered_Locations3[n, :People], Recovered_Locations3[n, People:], 'og',markersize = 8,
+                         label='{n}'.format(n=n)))
+im = animation.ArtistAnimation(fig1, anim, interval=10, repeat_delay=100,blit=True)
+
+#rcParams['animation.html'] = 'html5'
+# For some, the following line works instead:
+plt.rcParams['animation.html'] = 'jshtml'
+
+im
+
+fig2 = plt.figure(figsize=(8,8))
+
+Infected3 = SocialDistance2[3]
+Recovered3 = SocialDistance2[4]
+Susceptible3 = SocialDistance2[5]
+
+plt.title('50% Social Distancing', fontsize= '20')
+plt.xlabel('Number of Time Intervals', fontsize = '20')
+plt.ylabel('Number of Individuals', fontsize = '20')
+plt.plot(Infected3, color = 'red', label = 'Infected Population')
+plt.plot(Recovered3, color = 'green', label = 'Recovered Population')
+plt.plot(Susceptible3, color = 'blue', label = 'Susceptible Population')
+plt.xticks(fontsize= '15')
+plt.yticks(fontsize= '15')
+plt.grid()
+plt.legend(fontsize='15')
+#plt.savefig('50_SocialDistance', bbox_inches = 'tight')
+
+rd.seed(1234)
+
+Distance3 = list()
+
+Distance3 = Initialization(dt, Nt, People, Distance3, 75)
+
+SocialDistance3 = Simulation(dt, Nt, People, Distance3)
+
+Susceptible_Locations4 = SocialDistance3[0]
+Infected_Locations4 = SocialDistance3[1]
+Recovered_Locations4 = SocialDistance3[2]
+
+fig1 = plt.figure(figsize=(8,8)) 
+
+plt.title('75% Social Distancing')
+plt.xlim(0,1)
+plt.ylim(0,1)
+
+anim = []
+for n in range(0, FrameNt):
+    anim.append(plt.plot(Susceptible_Locations4[n, :People], Susceptible_Locations4[n, People:], 'ob',
+                         Infected_Locations4[n, :People], Infected_Locations4[n, People:], 'or',
+                         Recovered_Locations4[n, :People], Recovered_Locations4[n, People:], 'og', markersize = 8,
+                         label='{n}'.format(n=n)))
+im = animation.ArtistAnimation(fig1, anim, interval=10, repeat_delay=100,blit=True)
+
+#rcParams['animation.html'] = 'html5'
+# For some, the following line works instead:
+plt.rcParams['animation.html'] = 'jshtml'
+
+im
+
+fig2 = plt.figure(figsize=(8,8))
+
+Infected4 = SocialDistance3[3]
+Recovered4 = SocialDistance3[4]
+Susceptible4 = SocialDistance3[5]
+
+plt.title('75% Social Distancing', fontsize= '20')
+plt.xlabel('Number of Time Intervals', fontsize= '20')
+plt.ylabel('Number of Individuals', fontsize= '20')
+plt.xticks(fontsize= '15')
+plt.yticks(fontsize= '15')
+plt.plot(Infected4, color = 'red', label = 'Infected Population')
+plt.plot(Recovered4, color = 'green', label = 'Recovered Population')
+plt.plot(Susceptible4, color = 'blue', label = 'Susceptible Population')
+plt.grid()
+plt.legend(fontsize= '15')
+#plt.savefig('75_SocialDistance', bbox_inches = 'tight')
