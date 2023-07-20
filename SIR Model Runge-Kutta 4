@@ -1,0 +1,62 @@
+#Author: Henry Wahhab
+
+t = np.linspace(0, 100, 1000)
+Pop = 100 #Population
+
+init = np.array([Pop - 1, 1, 0]) # S, I , R
+
+def Deri(var,t):
+    #https://translational-medicine.biomedcentral.com/articles/10.1186/s12967-020-02513-7
+    Beta = 0.412 #(Effective Contact Rate) Took the average of Beta values from the link above
+    Gamma = 1/14 #Gamma is recover rate
+    
+    S = var[0]
+    I = var[1]
+    R = var[2]
+    
+    dSdt = -Beta * S * I / Pop
+    dIdt = Beta * S * I / Pop - Gamma * I
+    dRdt = Gamma * I
+    
+    return np.array([dSdt, dIdt, dRdt])
+
+
+def RK4(f,init,t):
+    
+    N = len(t)
+    Nvar = len(init)
+    
+    h = t[1]-t[0]
+
+    r = np.zeros([N,Nvar])
+    r[0,:] = init
+
+    for i in range(N-1):
+        k1 = h*f(r[i,:],t[i])
+        k2 = h*f(r[i,:]+k1/2,t[i]+h/2)
+        k3 = h*f(r[i,:]+k2/2,t[i]+h/2)
+        k4 = h*f(r[i,:]+k3,t[i]+h)
+        r[i+1,:] = r[i,:] + (k1+2*k2+2*k3+k4)/6.0
+
+    return r
+
+SIR_Model = RK4(Deri, init, t)
+
+S_Model = SIR_Model[:,0]
+I_Model = SIR_Model[:,1]
+R_Model = SIR_Model[:,2]
+
+fig1 = plt.figure(figsize=(10,10));
+plt.title('SIR Model', fontsize= '20')
+plt.xlabel('Time', fontsize= '20')
+plt.ylabel('Population', fontsize= '20')
+plt.xticks(fontsize= '20')
+plt.yticks(fontsize= '20')
+
+plt.plot(S_Model, color = 'blue', label = 'Susceptible Population')
+plt.plot(I_Model, color = 'red', label = 'Infected Population')
+plt.plot(R_Model, color = 'green', label = 'Recovered Population')
+
+plt.grid()
+plt.legend(fontsize= '20')
+#plt.savefig('SIR_Model_Numerical.png', bbox_inches = 'tight')
